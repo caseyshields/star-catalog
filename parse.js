@@ -16,50 +16,44 @@ fs.readFile( 'public/FK6/ReadMe',
             else n++;
         }
 
-        // read column names
-        n+=2;
-        let names = lines[n].split(/[\s-]+/);
-        console.log(names);
-
         // read every line until the separator
-        n+=2;
-        const EXPLANATION_COLUMN = 35;
+        n+=4;
+        const FK6_DAT = {
+            START : [0,4],
+            END : [6, 8],
+            FORMAT : [8, 16],
+            UNITS : [16, 23],
+            LABEL : [23, 35],
+            EXPLANATION : [35, 80]
+        }
         const SEPARATOR = '--------------------------------------------------------------------------------';
-        while (n<82&&lines[n]!==SEPARATOR) {
+        let metadata = [];
+        while (lines[n]!==SEPARATOR) {
             let line = lines[n];
 
             if (SEPARATOR==line)
                 break;
 
-            let columns = lines[n].split( /[-\s]+/, 5);
-            columns.push( line.slice(EXPLANATION_COLUMN) );
-            console.log( columns );
-            n++;
-            // // split the line into the same number of column
-            // let values = [];
-            // let start = 0;
-            // while (true) {
-            //     while (start<line.length)
-            //         if (line[start]==' ')
-            //             start++;
-            //         else break;
+            // parse field description
+            let description = {};
+            for( let field in FK6_DAT ) {
+                let index = FK6_DAT[field];
+                let value = line.slice( index[0], index[1] ).trim();
+                description[field] = value;
+            }
 
-            //     if (values.length==names.length) {
-            //         values.push( line.slice(start) );
-            //         break;
-            //     } else {
-            //         let end = start+1;
-            //         while (end<line.length) {
-            //             if(line[end]==' ' || line[end]=='-') {
-            //                 values.push(line.slice(start, end));
-            //                 break;
-            //             }
-            //         }
-            //     }
-            // }
+            // add the field
+            if (description.START!='')
+                metadata.push( description );
+
+            // if fields are missing it is an addendum to the explanation
+            else
+                metadata[metadata.length-1].EXPLANATION.concat(description.EXPLANATION); 
             
-        }// TODO can't just split need to consider number of columns and their position...
+            n++;
+        }
         
+        console.log( metadata );
     }
 );
 
