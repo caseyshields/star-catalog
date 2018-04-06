@@ -17,7 +17,7 @@ let fs = require('fs');
     let index = findLine( FK6_1_HEADER );
     let metadata = parseMetadata(lines, index+4, FK6_1_STRUCTURE)
 
-    // might want to filter metadata so we don't grab all the stuff we don't need...
+    // filter catalog metadata so we don't grab all the stuff we don't need...
     const filter = ['FK6', 'Name', 
             'RAh', 'RAm', 'RAs', 'e_RA*',
             'TRA', 'pmRA*', 'e_pmRA*',
@@ -35,18 +35,11 @@ let fs = require('fs');
     // console.log(catalog);
     //TODO we got a null record at the end...
     
-    // map to json objects
-    let stars = [];
-    for (let entry of catalog) {
-        let star = {};
-        for(let n in filter)
-            star[ filter[n] ] = entry[n];
-        stars.push( star );
-        //{ magnitude : entry[ filter.findIndex(d => d=='Vmag') ] }
-    }
-    console.log(stars);
+    // map to json objects and write to a json file
+    let stars = mapData(filter, catalog);
+    fs.writeFileSync('public/stars.json', JSON.stringify(stars, null, 2));
 
-    // rather than just writing to the json I want, maybe I could stuff it in some database...
+    // rather than just writing to the json format I want, maybe I could stuff it in some database...
     // rather than reading everything into memory then processing, might want to convert this to a streaming process...
 
     function findLine (content) {
@@ -109,6 +102,18 @@ let fs = require('fs');
                 star.push( value );
             }
             stars.push(star);
+        }
+        return stars;
+    }
+
+    function mapData( fieldNames, catalog ) {
+        let stars = [];
+        for (let entry of catalog) {
+            let star = {};
+            for(let n in fieldNames)
+                star[ fieldNames[n] ] = entry[n];
+            stars.push( star );
+            //{ magnitude : entry[ fieldNames.findIndex(d => d=='Vmag') ] }
         }
         return stars;
     }
