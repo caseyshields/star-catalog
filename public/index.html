@@ -24,14 +24,46 @@
             <h4> A catalog of stars suitable for high precision astrometry. </h4>
             <h4> brightness threshold:<input type="range" value="0.1" min="0.0" max="1.0" onchange="adjust(this.value)" step="0.01"></h4>
         </div>
-        <!-- <section>
-            <svg width="1024" height="768" style="background-color:#888"></svg>
-        </section> -->
-        <div id="output"></div>
+        <section>
+            <svg width="1024" height="1024" style="background-color:#888"></svg>
+        </section>
+        <!-- <div id="output"></div> -->
+        
         <script src="https://d3js.org/d3.v5.js"></script>
         <script>
-            d3.text("FK6/fk6_1.dat").then(function(data) {
-                console.log(data);
+
+            let w = 1024;
+            let h = 1024;
+
+            let svg = d3.select('svg');
+            let stars = d3.selectAll('circle');
+
+            // define a scale for visual magnitude
+            let magnitudeScale = d3.scaleLinear()
+                .range()
+                .domain();
+
+            let projection = d3.geoStereographic()
+                .translate( [w/2, h/2] )
+                .scale( w );
+
+            d3.json("stars.json").then(function(catalog) {
+
+                // convert arc hour, minute, seconds to degrees
+                for (star of catalog) {
+                    star.ra = star.RAh + (star.RAm/60.0) + (star.RAs/3600.0);
+                    star.dec = star.DEd + (star.DEm/60.0) + (star.DEs/3600.0);
+                    if(star['DE-']=='-')
+                        star.dec*=-1;
+                    console.log(star);
+                }
+
+                // data join
+                stars.data(catalog)
+                    .enter().append('circle')
+                    //.attr('cx', (d)=>{projection(d.ra, d.dec)} )
+                    .attr()
+
             });
         </script>
     </body>
