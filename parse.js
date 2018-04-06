@@ -31,9 +31,23 @@ let fs = require('fs');
     // read fk6_1 data
     data = fs.readFileSync('public/FK6/fk6_1.dat', {encoding:'ascii'} );
     lines = data.split('\n');
-    let stars = parseData(lines, metadata);
-
+    let catalog = parseData(lines, metadata);
+    // console.log(catalog);
+    //TODO we got a null record at the end...
+    
+    // map to json objects
+    let stars = [];
+    for (let entry of catalog) {
+        let star = {};
+        for(let n in filter)
+            star[ filter[n] ] = entry[n];
+        stars.push( star );
+        //{ magnitude : entry[ filter.findIndex(d => d=='Vmag') ] }
+    }
     console.log(stars);
+
+    // rather than just writing to the json I want, maybe I could stuff it in some database...
+    // rather than reading everything into memory then processing, might want to convert this to a streaming process...
 
     function findLine (content) {
         let index = 0;
