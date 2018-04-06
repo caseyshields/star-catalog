@@ -3,8 +3,8 @@ let fs = require('fs');
 (function() {
         
     // read fk6_1 metadata
-    const HEADER = 'Byte-by-byte Description of file: fk6_1.dat';
-    const STRUCTURE = {
+    const FK6_1_HEADER = 'Byte-by-byte Description of file: fk6_1.dat';
+    const FK6_1_STRUCTURE = {
         START : [0,4],
         END : [5, 8],
         FORMAT : [8, 16],
@@ -14,8 +14,19 @@ let fs = require('fs');
     }
     let data = fs.readFileSync( 'public/FK6/ReadMe', {encoding : 'ascii'} );
     let lines = data.split('\n');
-    let index = findLine( HEADER );
-    let metadata = parseMetadata(lines, index+4, STRUCTURE)
+    let index = findLine( FK6_1_HEADER );
+    let metadata = parseMetadata(lines, index+4, FK6_1_STRUCTURE)
+
+    // might want to filter metadata so we don't grab all the stuff we don't need...
+    const filter = ['FK6', 'Name', 
+            'RAh', 'RAm', 'RAs', 'e_RA*',
+            'TRA', 'pmRA*', 'e_pmRA*',
+            'DE-', 'DEd', 'DEm', 'DEs', 'e_DEs',
+            'TDE','pmDE', 'e_pmDE',
+            'plx', 'e_plx', 'RV',
+            'Vmag', 'f_Vmag', 'Kae', 'Note'];
+    metadata = metadata.filter( field => filter.includes(field.LABEL) );
+    // console.log(metadata);
 
     // read fk6_1 data
     data = fs.readFileSync('public/FK6/fk6_1.dat', {encoding:'ascii'} );
@@ -70,8 +81,19 @@ let fs = require('fs');
         let stars = []
         for (let line of lines) {
             let star = [];
-            for(let field of metadata)
-                star.push( line.slice(field.START-1, field.END).trim() );
+            for(let field of metadata) {
+                let value;
+                if (field.START)
+                    value = line.slice(field.START-1, field.END).trim();
+                else value = line.slice(field.END-1, field.END).trim();
+
+                if (field.FORMAT[0]=='I')
+                    value = parseInt( value );
+                else if (field.FORMAT[0]=='F')
+                    value = parseFloat( value );
+                
+                star.push( value );
+            }
             stars.push(star);
         }
         return stars;
