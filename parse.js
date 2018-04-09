@@ -26,7 +26,8 @@ let fs = require('fs');
             'plx', 'e_plx', 'RV',
             'Vmag', 'f_Vmag', 'Kae', 'Note'];
     metadata = metadata.filter( field => filter.includes(field.LABEL) );
-    // console.log(metadata);
+    console.log( 'FK6_1.dat metadata from readme' );
+    console.log(metadata);
 
     // read fk6_1 data
     data = fs.readFileSync('public/FK6/fk6_1.dat', {encoding:'ascii'} );
