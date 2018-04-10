@@ -15,7 +15,7 @@ let fs = require('fs');
     let data = fs.readFileSync( 'public/FK6/ReadMe', {encoding : 'ascii'} );
     let lines = data.split('\n');
     let index = findLine( FK6_1_HEADER );
-    let metadata = parseMetadata(lines, index+4, FK6_1_STRUCTURE)
+    let full_metadata = parseMetadata(lines, index+4, FK6_1_STRUCTURE)
 
     // filter catalog metadata so we don't grab all the stuff we don't need...
     const filter = ['FK6', 'Name', 
@@ -25,7 +25,12 @@ let fs = require('fs');
             'TDE','pmDE', 'e_pmDE',
             'plx', 'e_plx', 'RV',
             'Vmag', 'f_Vmag', 'Kae', 'Note'];
-    metadata = metadata.filter( field => filter.includes(field.LABEL) );
+    let metadata=[];
+    full_metadata.forEach( function(field) {
+        let index = filter.findIndex( (d)=>(d==field.LABEL) ) ;
+        if (index>-1) metadata[index] = field; // preserve the field order in the filter
+    });
+    //metadata = metadata.filter( field => filter.includes(field.LABEL) ); // this method preserves raw order...
     console.log( 'FK6_1.dat metadata from readme' );
     console.log(metadata);
 
