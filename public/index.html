@@ -16,10 +16,11 @@
             }
             .overlay {
                 position: absolute;
-                top: 10%;
-                left: 10%;
+                top: 5%;
+                left: 5%;
             }
             svg {
+                pointer-events:all;
                 background: black;
                 /* position: absolute;
                 left: 0;
@@ -32,25 +33,29 @@
         <div class="overlay">
             <h1> Fundamental Catalog 6 </h1>
             <h4> A catalog of stars suitable for high precision astrometry. </h4>
-            <h4> brightness threshold:<input type="range" value="0.1" min="0.0" max="1.0" onchange="adjust(this.value)" step="0.01"></h4>
+            <h4> RA <input id="raText" type="text"></text><br>
+                DEC <input id="decText" type"text"></text> </h4>
+            <!-- <h4> brightness threshold:<input type="range" value="0.1" min="0.0" max="1.0" onchange="adjust(this.value)" step="0.01"></h4> -->
             <!-- <h4> Field of View:<input type="range" value="120" min="1" max="179" onchange="fov(this.value)" step="5"></h4> -->
         </div>
         <section>
-            <svg width="1024" height="1024"></svg>
+            <svg width="512" height="512"></svg>
         </section>
         <h6> Philip Plewa pretty much had already done <a href="https://bl.ocks.org/pmplewa/0e36cce6c9c5edb31e18d41ad1f82c4e">exactly what I wanted</a>, so I heavily borrowed from him. He's also doing cool stuff <a href="http://pmplewa.github.io/">tracking stars in the galactic center</a>!</h6>
         
         <script src="https://d3js.org/d3.v5.js"></script>
         <script>
-            let w = 1024;
-            let h = 1024;
-
             let svg = d3.select('svg');
-            let stars = d3.selectAll('circle');
+            let stars = svg.selectAll('circle'); // the D3 selection holding star elements
+            let catalog = null; // the FK6 catalog to be rendered
+            let w = svg.attr('width');
+            let h = svg.attr('height');
+
+            let dragStart = null; // used for calculating drag vector for setting the rotation
 
             // define a scale for visual magnitude
             let magnitudeScale = d3.scaleLinear()
-                .range( [1,10] );
+                .range( [1,5] );
 
             // we need to map celestial coordinates to lon/lat 
             rightAscensionScale = d3.scaleLinear()
@@ -59,6 +64,14 @@
             // declinationScale = d3.scaleLinear()
             //     .domain([0, 90])
             //     .range([0,90]);
+
+            var lambda = d3.scaleLinear()
+                .domain([-w, w])
+                .range([-180, 180]);
+    
+            var phi = d3.scaleLinear()
+                .domain([-h, h])
+                .range([90, -90]);
 
             // a stereographic projection is how stars would map to a plane if you were looking from inside the sphere.
             // in this case we are using a celestial sphere instead of terrestrial one
@@ -79,7 +92,8 @@
                 .attr('class', 'stars');
 
             // load our data set
-            d3.json("stars.json").then(function(catalog) {
+            d3.json("stars.json").then(function(fk6) {
+                catalog = fk6;
 
                 // convert arc hour, minute, seconds to degrees
                 for (star of catalog) {
@@ -95,19 +109,21 @@
                 magnitudeScale.domain( range );
                 // console.log( range );
 
-                // let raextent = d3.extent(catalog, (d)=>d.ra );
-                // console.log( 'ra : '+raextent );
-                // let decextent = d3.extent(catalog, (d)=>d.dec );
-                // console.log( 'dec : '+decextent);
-
-                render(catalog);
+                render();
             });
 
-            function render( catalog ) {
+            svg.call( d3.drag()
+                .on('start', started)
+                .on('drag', dragged)
+                .on('end', ended) );
+
+            function render() {
 
                 // draw celestial sphere's lines of ascension and declination
                 svg.select('.graticule')
                     .attr('d', path);
+
+                if (!catalog) return;
 
                 // join all star data to stars in our dom
                 stars = stars.data( catalog );
@@ -118,28 +134,45 @@
                 stars = stars.enter()
                     .append('circle')
                         .style('fill', 'white')
+                        .on('click', function(d) {console.log(d);} )
                     .merge( stars )
                         .attr('r', function(d) {return Math.round( magnitudeScale(d.Vmag) );} );
 
                 stars.each( function(d) {
                     let lon = rightAscensionScale(d.ra)
-                    console.log( lon )
                     let S = stereographic( [lon, d.dec] );
                     // console.log( S );
                     d3.select(this)
                         .attr('cx', S[0])
                         .attr('cy', S[1]);
-                    //.attr('cx', (d)=>{sterographic(d.ra, d.dec)} )
                 } );
                 
             }
 
-            // // callback which adjusts the stereographic projections field of view
-            // function fov(angle) {
-            //     console.log( angle );
-            //     stereographic.clipAngle( angle );
-            //     render();
-            // }
+            function started() {
+                // get coordinates of mouse event in svg container
+                dragStart = d3.mouse(this); // this refers to the object which registered the event, in this case the SVG element
+            }
+            function dragged() {
+                if(!dragStart) return;
+                let dragEnd = d3.mouse(this);
+                // let last = stereographic.rotate();
+                lon = lambda( dragEnd[0]-dragStart[0] );
+                lat = phi( dragEnd[1]-dragStart[1] );
+                //console.log(last);//[lat,lon]);
+                stereographic.rotate( [lon, lat] );
+                render();
+            }
+            function ended() {
+                dragStart = null;
+            }
+
+            // callback which adjusts the stereographic projections field of view
+            function fov(angle) {
+                console.log( angle );
+                stereographic.clipAngle( angle );
+                render();
+            }
 
         </script>
     </body>
