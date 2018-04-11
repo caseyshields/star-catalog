@@ -20,11 +20,13 @@
                 pointer-events:all;
                 background: black;
             }
+            circle { fill:white; }
+            circle.selected { fill: #FF0000; }
             #title { grid-area: 1 / 1 / 2 / 4; }
             #ascension { grid-area: 3 / 1 / 4 / 2; }
             #declination { grid-area: 3 / 2 / 4 / 3; }
-            #info { grid-area: 2 / 3 / 5 / 4; }
-            #note { grid-area: 4 / 1 / 5 / 3; }
+            #info { grid-area: 2 / 3 / 4 / 4; }
+            #note { grid-area: 4 / 1 / 5 / 4; }
         </style>
     </head>
     <body>
@@ -41,14 +43,15 @@
         
         <script src="https://d3js.org/d3.v5.js"></script>
         <script>
+            let catalog = null; // the FK6 catalog to be rendered
+
             let svg = d3.select('svg');
             let ascension = d3.select('#ascension');
             let declination = d3.select('#declination');
             let info = d3.select('#info');
-            let catalog = null; // the FK6 catalog to be rendered
-            let w = svg.attr('width');
-            let h = svg.attr('height');
-
+            let width = svg.attr('width');
+            let height = svg.attr('height');
+            let scale = 1.0;
             let dragStart = null; // used for calculating drag vector for setting the rotation
 
             // define a scale for visual magnitude
@@ -59,23 +62,20 @@
             rightAscensionScale = d3.scaleLinear()
                 .domain([0, 24])
                 .range([0,360]);
-            // declinationScale = d3.scaleLinear()
-            //     .domain([0, 90])
-            //     .range([0,90]);
 
             var lambda = d3.scaleLinear()
-                .domain([-w, w])
+                .domain([-width, width])
                 .range([-180, 180]);
     
             var phi = d3.scaleLinear()
-                .domain([-h, h])
+                .domain([-height, height])
                 .range([90, -90]);
 
             // a stereographic projection is how stars would map to a plane if you were looking from inside the sphere.
             // in this case we are using a celestial sphere instead of terrestrial one
             let stereographic = d3.geoStereographic()
-                .translate( [w/2, h/2] )
-                .scale( w )
+                .translate( [width/2, height/2] )
+                .scale( width )
                 .clipAngle(90);
 
             let path = d3.geoPath()
@@ -116,12 +116,17 @@
                 render();
             });
 
+            // add mouse interactivity to screen and stars
             svg.call( d3.drag()
                 .on('start', started)
                 .on('drag', dragged)
                 .on('end', ended) );
+            svg.call( d3.zoom()
+                    .on("zoom", wheel )
+                    //.extent( [1, w] )
+                );
+                // .on('wheel.zoom', null); // this consumes the event and prevents it from being sent to the page?
             svg.on('mousemove', move);
-            svg.on('mousewheel', wheel);
 
             function render() {
 
@@ -139,7 +144,6 @@
 
                 stars = stars.enter()
                     .append('circle')
-                        .style('fill', 'white')
                         .on('click', click )
                     .merge( stars )
                         .attr('r', function(d) {return Math.round( magnitudeScale(d.Vmag) );} );
@@ -157,7 +161,11 @@
 
             // clicking a star causes it's data to be displayed
             function click(star) {
-                if (star) info.html( JSON.stringify( star, null, '<br>') );
+                if (star) {
+                    d3.selectAll('.selected').classed('selected', false);
+                    info.html( JSON.stringify( star, null, '<br>') );
+                    d3.select(this).classed('selected', true);
+                }
                 else info.html('');
             }
 
@@ -180,9 +188,9 @@
                 // abort if this is the first point of the drag
                 if(!dragStart) { dragStart = dragEnd; return; }
 
-                // get the distance dragged on the screen
-                Dx = lambda( dragEnd[0]-dragStart[0] );
-                Dy = phi( dragEnd[1]-dragStart[1] );
+                // get the distance dragged on the screen, scaled by the zoom
+                Dx = lambda( dragEnd[0]-dragStart[0] ) / scale;
+                Dy = phi( dragEnd[1]-dragStart[1] ) / scale;
 
                 // add it to the current transformation
                 let last = stereographic.rotate();
@@ -197,10 +205,11 @@
             }
             function ended() { dragStart = null; }
 
-            // TODO the mouse wheel should adjust the field of view
+            // the mouse wheel adjusts the field of view
             function wheel() {
-                console.log(d3.mouse);
-                //stereographic.scale( angle );
+                scale = d3.event.transform.k;
+                stereographic.scale( scale * width );
+                stereographic.clipAngle( scale * 90.0 );
                 render();
             }
 
