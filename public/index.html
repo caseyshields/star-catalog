@@ -5,6 +5,11 @@
         <title>Fundamental Catalog 6</title>
         <!-- <link href="../site.css" rel="stylesheet" /> -->
         <style>
+            section {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                grid-template-rows: 1fr 20px 30px;
+            }
             .overlay * {
                 stroke: white;
                 fill: white;
@@ -20,32 +25,37 @@
                 left: 5%;
             }
             svg {
+                grid-area: 1 / 1 / 2 / 3;
                 pointer-events:all;
                 background: black;
-                /* position: absolute;
-                left: 0;
-                top: 0;
-                z-index: -1; */
             }
+            #ascension { grid-area: 2 / 1 / 3 / 2; }
+            #declination { grid-area: 2 / 2 / 3 / 3; }
+            #info { grid-area: 1 / 3 / 4 / 4; }
+            #note { grid-area: 3 / 1 / 4 / 3; }
         </style>
     </head>
     <body>
-        <div class="overlay">
-            <h1> Fundamental Catalog 6 </h1>
-            <h4 id='cursor'></h4>
-            <h4 id='info'></h4>
-            <!-- <h4> brightness threshold:<input type="range" value="0.1" min="0.0" max="1.0" onchange="adjust(this.value)" step="0.01"></h4> -->
-            <!-- <h4> Field of View:<input type="range" value="120" min="1" max="179" onchange="fov(this.value)" step="5"></h4> -->
-        </div>
         <section>
+            <!--<div class="overlay">
+                <h4> brightness threshold:<input type="range" value="0.1" min="0.0" max="1.0" onchange="adjust(this.value)" step="0.01"></h4>
+                <h4> Field of View:<input type="range" value="120" min="1" max="179" onchange="fov(this.value)" step="5"></h4>
+            </div>-->
+            <h1 id="title"> Fundamental Catalog 6 </h1>
             <svg width="512" height="512"></svg>
+            <h4 id="ascension"></h4>
+            <h4 id="declination"></h4>
+            <h4 id="info"></h4>
+            <h6 id="note"> Philip Plewa pretty much had already done <a href="https://bl.ocks.org/pmplewa/0e36cce6c9c5edb31e18d41ad1f82c4e">exactly what I wanted</a>, so I heavily borrowed from him. He's also doing cool stuff <a href="http://pmplewa.github.io/">tracking stars in the galactic center</a>.</h6>
+            </span>
         </section>
-        <h6> Philip Plewa pretty much had already done <a href="https://bl.ocks.org/pmplewa/0e36cce6c9c5edb31e18d41ad1f82c4e">exactly what I wanted</a>, so I heavily borrowed from him. He's also doing cool stuff <a href="http://pmplewa.github.io/">tracking stars in the galactic center</a>!</h6>
+        
         
         <script src="https://d3js.org/d3.v5.js"></script>
         <script>
             let svg = d3.select('svg');
-            let cursor = d3.select('#cursor');
+            let ascension = d3.select('#ascension');
+            let declination = d3.select('#declination');
             let info = d3.select('#info');
             let catalog = null; // the FK6 catalog to be rendered
             let w = svg.attr('width');
@@ -86,7 +96,7 @@
             // add a path the draw the sphere's marking under the star field
             svg.append('path')
                 .attr('class', 'graticule' )
-                .datum( d3.geoGraticule() );
+                .datum( d3.geoGraticule().step([15, 10]) );
 
             svg.append('path')
                 .attr('class', 'latitude')
@@ -123,6 +133,7 @@
                 .on('drag', dragged)
                 .on('end', ended) );
             svg.on('mousemove', move);
+            svg.on('mousewheel', wheel);
 
             function render() {
 
@@ -168,7 +179,8 @@
                 Ps = d3.mouse(this);
                 Pw = stereographic.invert( Ps )
                 Pc = [ rightAscensionScale.invert(Pw[0]), Pw[1] ];
-                cursor.html( JSON.stringify( Pc ) );
+                ascension.html( Pc[0] );
+                declination.html( Pc[1] );
             }
 
             // these drag callbacks update a rotation applied to the projection
@@ -198,8 +210,9 @@
             function ended() { dragStart = null; }
 
             // TODO the mouse wheel should adjust the field of view
-            function wheel(angle) {
-                stereographic.scale( angle );
+            function wheel() {
+                console.log(d3.mouse);
+                //stereographic.scale( angle );
                 render();
             }
 
