@@ -37,6 +37,7 @@
             <h4 id="declination"></h4>
             <h4 id="info"></h4>
             <h6 id="note"> Philip Plewa pretty much had already done <a href="https://bl.ocks.org/pmplewa/0e36cce6c9c5edb31e18d41ad1f82c4e">exactly what I wanted</a>, so I heavily borrowed from him. He's also doing cool stuff <a href="http://pmplewa.github.io/">tracking stars in the galactic center</a>.</h6>
+            <input id="magnitude" type="range" min="0" max="10" step="0.1" /> 
             </span>
         </section>
         
@@ -53,6 +54,8 @@
             let height = svg.attr('height');
             let scale = 1.0;
             let dragStart = null; // used for calculating drag vector for setting the rotation
+
+            let magnitude = d3.select('#magnitude').on('change', slider);
 
             // define a scale for visual magnitude
             let magnitudeScale = d3.scaleLinear()
@@ -111,6 +114,10 @@
                 // find range of visual magnitudes
                 let range = d3.extent(catalog, (d)=>d.Vmag );
                 magnitudeScale.domain( range );
+                magnitude
+                    .attr('min', range[0] )
+                    .attr('max', range[1] )
+                    .attr('step', (range[1]-range[0]) / 100.0 );
                 // console.log( range );
 
                 render();
@@ -211,6 +218,10 @@
                 stereographic.scale( scale * width );
                 stereographic.clipAngle( scale * 90.0 );
                 render();
+            }
+
+            function slider(event) {
+                console.log( magnitude.property('value') );
             }
 
         </script>
