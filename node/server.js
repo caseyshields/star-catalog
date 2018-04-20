@@ -29,7 +29,7 @@ let options = {
   index : 'index.html',
   redirect: false
 }
-app.use( express.static('public', options) );
+app.use( express.static('../public', options) );
 app.listen( 3001 );
 
 // node http single file server
