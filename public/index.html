@@ -113,7 +113,7 @@
 
                 // find range of visual magnitudes
                 let range = d3.extent(catalog, (d)=>d.Vmag );
-                magnitudeScale.domain( range );
+                magnitudeScale.domain( [range[1], range[0]] );
                 magnitude
                     .attr('min', range[0] )
                     .attr('max', range[1] )
