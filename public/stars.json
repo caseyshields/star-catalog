@@ -22826,31 +22826,5 @@
     "f_Vmag": null,
     "Kae": 3,
     "Note": null
-  },
-  {
-    "FK6": null,
-    "Name": "",
-    "RAh": null,
-    "RAm": null,
-    "RAs": null,
-    "e_RA*": null,
-    "TRA": null,
-    "pmRA*": null,
-    "e_pmRA*": null,
-    "DE-": "",
-    "DEd": null,
-    "DEm": null,
-    "DEs": null,
-    "e_DEs": null,
-    "TDE": null,
-    "pmDE": null,
-    "e_pmDE": null,
-    "plx": null,
-    "e_plx": null,
-    "RV": null,
-    "Vmag": null,
-    "f_Vmag": null,
-    "Kae": null,
-    "Note": null
   }
 ]
