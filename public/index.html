@@ -157,7 +157,7 @@
 
                 stars.each( function(d) {
                     let lon = rightAscensionScale(d.ra)
-                    let S = stereographic( [lon, d.dec] );
+                    let S = stereographic( [-lon, d.dec] ); // need to flip longitude because we are in the celestial sphere
                     // console.log( S );
                     d3.select(this)
                         .attr('cx', S[0])
