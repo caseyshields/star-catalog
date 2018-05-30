@@ -58,6 +58,11 @@ public class Main {
         } // use a real database to store the catalog
 
         // Add http paths
+        get( "/", (request, response) -> {
+            response.type("text/html" );
+            response.status(200);
+
+        });
         get("/hello", (request, response) -> {
 
             String accept = request.headers("Accept");
@@ -70,14 +75,14 @@ public class Main {
             else if( accept.contains("text/html") ) {
                 response.status(200);
                 response.type("text/html");
-                return body().with(
+                return html( body().with(
                         h1("FK 6 Star Catalog excerpt"),
                         each( catalog, entry ->
                                 div(
                                         p(entry.toString())
                                 )
                         )
-                ).render();
+                )).render();
             }
 
             else if( accept.contains("application/json") ) {
