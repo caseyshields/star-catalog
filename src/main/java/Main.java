@@ -57,12 +57,6 @@ public class Main {
             halt(500, msg );
         } // use a real database to store the catalog
 
-        // Add http paths
-        get( "/", (request, response) -> {
-            response.type("text/html" );
-            response.status(200);
-
-        });
         get("/hello", (request, response) -> {
 
             String accept = request.headers("Accept");
