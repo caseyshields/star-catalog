@@ -88,6 +88,12 @@ public class Main {
             return "error";
         } );
 
+        get( "/api/zenith", (request, response) -> {
+
+
+            halt( 500, "Casey is lazy" );
+            return null;
+        } );
     }
 
 }
