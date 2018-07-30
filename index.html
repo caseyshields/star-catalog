@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Starmap - Fundamental Catalog 6</title>
+        <style>
+            section {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 50px 1fr;
+                justify-items: center;
+            }
+            #title { grid-area: 1 / 1 / 2 / 3; }
+            #info { grid-area: 2 / 2 / 3 / 3; }
+            svg {
+                grid-area: 2 / 1 / 3 / 2;
+                pointer-events:all;
+                background: black;
+            }
+            circle { fill:white; }
+            circle.selected { fill: #FF0000; }
+            .graticule {
+                stroke: grey;
+                fill: none;
+            }
+        </style>
+    </head>
+    <body>
+        <section>
+            <h1 id="title"> Fundamental Catalog 6 </h1>
+            <svg width="512" height="512"></svg>
+            <h4 id="info"></h4>
+            <!-- <input id="magnitude" type="range" min="0" max="10" step="0.1" />  -->
+            </span>
+        </section>
+        
+        
+        <script src="https://d3js.org/d3.v5.js"></script>
+        <script src="starmap.js"></script>
+        <script>
+            let svg = d3.select('svg');
+            let width = svg.attr("width");
+            let height = svg.attr("height");
+
+            let info = d3.select('#info');
+            // let ascension = d3.select('#ascension');
+            // let declination = d3.select('#declination');
+            // let magnitude = d3.select('#magnitude').on('change', slider);
+
+            let starmap = createStarmap(svg, width, height, info )
+                .selected( clicked );
+            load("stars.json");
+
+            // load the FK6 catalog into a format that can be used with starmap
+            function load(filename) {
+                d3.json(filename).then( function(catalog) {
+
+                    // convert arc hour, minute, seconds to degrees
+                    for (star of catalog) {
+                        star.ra = star.RAh + (star.RAm/60.0) + (star.RAs/3600.0);
+                        star.dec = star.DEd + (star.DEm/60.0) + (star.DEs/3600.0);
+                        if(star['DE-']=='-')
+                            star.dec*=-1;
+                        // console.log([star.ra,star.dec]);
+                    }
+
+                    // set the catalog data and trigger a render
+                    starmap.catalog( catalog )();
+                });
+            }
+
+            function clicked( point ) {
+                console.log( point );
+            }
+            
+        </script>
+    </body>
+</html>
