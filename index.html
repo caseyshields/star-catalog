@@ -49,10 +49,10 @@
 
             let starmap = createStarmap(svg, width, height, info )
                 .selected( clicked );
-            load("fk6_1.json");
+            load(starmap, "fk6_1.json");
 
             // load the FK6 catalog into a format that can be used with starmap
-            function load(filename) {
+            function load(starmap, filename) {
                 d3.json(filename).then( function(catalog) {
 
                     // convert arc hour, minute, seconds to degrees
