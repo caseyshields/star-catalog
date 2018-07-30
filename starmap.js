@@ -35,7 +35,7 @@ function createStarmap( svg, width, height, readout ) {
     let stereographic = d3.geoStereographic()
         .translate( [width/2, height/2] )
         .scale( width )
-        .clipAngle(90);
+        .clipAngle(179);
 
     // add a path for a spherical coordinate grid
     let path = d3.geoPath()
@@ -105,8 +105,7 @@ function createStarmap( svg, width, height, readout ) {
         if ( star ) {
             d3.selectAll('.selected').classed('selected', false); // TODO might want to cache this instead of looking it up every time...
             d3.select(this).classed('selected', true);
-            //info.html( JSON.stringify( star, null, '<br>') );
-        } // else info.html('');
+        }
 
         // invoke the user suppplied callback
         if( clicked )
@@ -121,7 +120,8 @@ function createStarmap( svg, width, height, readout ) {
         // let Pc = [ rightAscensionScale.invert(Pw[0]), Pw[1] ]; // celestial coodinates
         // ascension.html( Pc[0] );
         // declination.html( Pc[1] );
-        moved( Ps );
+        if( moved )
+            moved( Ps );
     }
 
     // these drag callbacks update a rotation applied to the projection
@@ -143,7 +143,7 @@ function createStarmap( svg, width, height, readout ) {
 
         // update the projection
         stereographic.rotate( last );
-        render();
+        starmap();
 
         // update the drag point
         dragStart = dragEnd;
@@ -154,8 +154,8 @@ function createStarmap( svg, width, height, readout ) {
     function wheel() {
         scale = d3.event.transform.k;
         stereographic.scale( scale * width );
-        stereographic.clipAngle( scale * 90.0 );
-        render();
+        //stereographic.clipAngle( scale * 179.0 );
+        starmap();
     }
 
     // TODO add magnitude cutoff?
@@ -187,11 +187,13 @@ function createStarmap( svg, width, height, readout ) {
     /** Set the call back function for mouse movements over the star map. */
     starmap.moved = function( callback ) {
         moved = callback;
+        return starmap;
     }
 
     /** set the selection callback. It should accept three arguments; star, index, and selection */
     starmap.selected = function( callback ) {
         clicked = callback;
+        return starmap;
     }
 
     /** Convert screen coordinates to celestial coordinates. */

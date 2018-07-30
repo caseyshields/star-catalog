@@ -49,7 +49,7 @@
 
             let starmap = createStarmap(svg, width, height, info )
                 .selected( clicked );
-            load(starmap, "fk6_1.json");
+            load(starmap, "https://caseyshields.github.io/starmap/fk6_1.json");
 
             // load the FK6 catalog into a format that can be used with starmap
             function load(starmap, filename) {
@@ -65,12 +65,16 @@
                     }
 
                     // set the catalog data and trigger a render
-                    starmap.catalog( catalog )();
+                    starmap.catalog( catalog );
+                    starmap();
                 });
             }
 
-            function clicked( point ) {
-                console.log( point );
+            function clicked( star, index, selection ) {
+
+                info.html( JSON.stringify( star, null, '<br>') );
+
+                console.log( index );
             }
             
         </script>
