@@ -116,7 +116,7 @@ function createStarmap( svg, width, height, readout ) {
     // update the cursor information with where the mouse is pointing in the projection
     function move() {
         // get the location of the cursor in the SVG element
-        // let Ps = d3.mouse(this); // screen coodinates
+         let Ps = d3.mouse(this); // screen coodinates
         // let Pw = stereographic.invert( Ps ) // map coordinates
         // let Pc = [ rightAscensionScale.invert(Pw[0]), Pw[1] ]; // celestial coodinates
         // ascension.html( Pc[0] );
