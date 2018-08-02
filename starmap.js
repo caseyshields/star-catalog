@@ -185,13 +185,13 @@ function createStarmap( svg, width, height, readout ) {
     }
 
     /** Set the call back function for mouse movements over the star map. */
-    starmap.moved = function( callback ) {
+    starmap.move = function( callback ) {
         moved = callback;
         return starmap;
     }
 
     /** set the selection callback. It should accept three arguments; star, index, and selection */
-    starmap.selected = function( callback ) {
+    starmap.click = function( callback ) {
         clicked = callback;
         return starmap;
     }

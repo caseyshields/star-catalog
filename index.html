@@ -51,8 +51,18 @@
             // let magnitude = d3.select('#magnitude').on('change', slider);
 
             let starmap = createStarmap(svg, width, height, info )
-                .selected( clicked )
-                .moved( moved );
+                .click(
+                    function( star, index, selection ) {
+                        info.html( JSON.stringify( star, null, '<br>') );
+                    }
+                )
+                .move(
+                    function( point ) {
+                        let map = starmap.screenToCelestial(point);
+                        coordinate.html( JSON.stringify( map ) );
+                    }
+                );
+            
             load(starmap, "https://caseyshields.github.io/starmap/fk6_1.json");
 
             // load the FK6 catalog into a format that can be used with starmap
@@ -74,14 +84,14 @@
                 });
             }
 
-            function clicked( star, index, selection ) {
-                info.html( JSON.stringify( star, null, '<br>') );
-            }
+            // function clicked( star, index, selection ) {
+            //     info.html( JSON.stringify( star, null, '<br>') );
+            // }
 
-            function moved( point ) {
-                let map = starmap.screenToCelestial(point);
-                coordinate.html( JSON.stringify( map ) );
-            }
+            // function moved( point ) {
+            //     let map = starmap.screenToCelestial(point);
+            //     coordinate.html( JSON.stringify( map ) );
+            // }
             
         </script>
     </body>
