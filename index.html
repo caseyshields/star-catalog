@@ -61,7 +61,8 @@
                         let map = starmap.screenToCelestial(point);
                         coordinate.html( JSON.stringify( map ) );
                     }
-                );
+                )
+                .magnitude( [-1, 6] );
             
             load(starmap, "https://caseyshields.github.io/starmap/fk6_1.json");
 

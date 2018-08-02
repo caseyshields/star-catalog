@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Starmap - Fundamental Catalog 6</title>
+        <style>
+            svg {
+                pointer-events:all;
+                background: black;
+            }
+            circle { fill:white; }
+            circle.selected { fill: #FF0000; }
+            .graticule {
+                stroke: grey;
+                fill: none;
+            }
+        </style>
+    </head>
+    <body>
+        <svg width="256" height="256"></svg>
+        <script src="https://d3js.org/d3.v5.js"></script>
+        <script src="starmap.js"></script>
+        <script>
+            let svg = d3.select('svg');
+            let width = svg.attr("width");
+            let height = svg.attr("height");
+            let stars = [
+                // Vega
+                {Name:"alpha Lyr", ra:"18.6156492", dec:"38.7836898",
+                    pmRA:"201.7", pmDE:"286.67", plx:"128.93", Vmag:"0.03"},
+                // Canopus
+                {Name:"alpha Car", ra:"6.39919703", dec:"-52.6956611",
+                    pmRA:"19.37", pmDE:"23.27", plx:"10.43", Vmag:"-0.62"}
+            ];
+            let starmap = createStarmap(svg, width, height)
+                .click( function( star ) { console.log( star ); } )
+                .move( function( point ) { console.log( starmap.screenToCelestial( point ) ); } )
+                .magnitude( [-1, 6] )
+                .catalog( stars );
+            starmap();
+        </script>
+    </body>
+</html>

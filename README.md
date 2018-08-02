@@ -9,16 +9,19 @@ A D3 component for displaying star catalogs and selecting individual stars.
     let width = svg.attr("width");
     let height = svg.attr("height");
     let stars = [
+        // Vega
         {Name:"alpha Lyr", ra:"18.6156492", dec:"38.7836898",
             pmRA:"201.7", pmDE:"286.67", plx:"128.93", Vmag:"0.03"},
-        {Name:"alpha Car", ra:"6.39919703", dec:"52.6956611",
-            pmRA:"19.37", pmDE:"23.27", plx:"10.43" Vmag:"-0.62"}
+        // Canopus
+        {Name:"alpha Car", ra:"6.39919703", dec:"-52.6956611",
+            pmRA:"19.37", pmDE:"23.27", plx:"10.43", Vmag:"-0.62"}
     ];
     let starmap = createStarmap(svg, width, height)
         .click( function( star ) { console.log( star ); } )
-        .move( function( point ) { console.log( point ); } )
+        .move( function( point ) { console.log( starmap.screenToCelestial( point ) ); } )
+        .magnitude( [-1, 6] )
         .catalog( stars );
-    
+    starmap();
 ```
 
 # Examples

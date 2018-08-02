@@ -15,7 +15,8 @@ function createStarmap( svg, width, height, readout ) {
 
     // define a scale for visual magnitude
     let magnitudeScale = d3.scaleLinear()
-        .range( [1,5] );
+        .clamp( true )
+        .range( [6,1] );
 
     // we need to map celestial coordinates to lon/lat 
     let rightAscensionScale = d3.scaleLinear()
@@ -85,7 +86,11 @@ function createStarmap( svg, width, height, readout ) {
             .append('circle')
                 .on('click', click )
             .merge( stars )
-                .attr('r', function(d) {return Math.round( magnitudeScale(d.Vmag) );} );
+                .attr('r', function(d) {
+                    if( Math.round( magnitudeScale(d.Vmag)) == -1 )
+                        console.log("wtf");
+                    return Math.round( magnitudeScale(d.Vmag) );
+                } );
 
         // position all stars
         stars.each( function(d) {
@@ -167,15 +172,9 @@ function createStarmap( svg, width, height, readout ) {
         catalog = newCatalog;
 
         // update the visual magnitude scale
-        let range = d3.extent(catalog, (d)=>d.Vmag );
-        magnitudeScale.domain( [range[1], range[0]] );
-        // magnitude
-        //     .attr('min', range[0] )
-        //     .attr('max', range[1] )
-        //     .attr('step', (range[1]-range[0]) / 100.0 );
-        // console.log( range );
-        // maybe we should just have this configured, could give the user false impressions between datasets of different ranges
-
+        // let range = d3.extent(catalog, (d)=>d.Vmag );
+        // magnitudeScale.domain( [range[1], range[0]] );
+        
         return starmap;
     }
 
@@ -193,6 +192,11 @@ function createStarmap( svg, width, height, readout ) {
     /** set the selection callback. It should accept three arguments; star, index, and selection */
     starmap.click = function( callback ) {
         clicked = callback;
+        return starmap;
+    }
+
+    starmap.magnitude = function( domain ) {
+        magnitudeScale.domain( domain );
         return starmap;
     }
 
