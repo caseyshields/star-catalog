@@ -24,24 +24,63 @@ A D3 component for displaying star catalogs and selecting individual stars.
     starmap();
 ```
 
-# Examples
+# Demo
 
-An example showing the [FK6 Star Catalog is available](https://caseyshields.github.io/starmap/index.html). FK6 is a selection of astrometrically excellent stars tied to the [ICRS](https://en.wikipedia.org/wiki/International_Celestial_Reference_System). It is often used to calibrate telescopes at optical wavelengths. It was compiled from the Hipparcos catalog and long term ground based measurements, and is known to be accurate to a milliarcsecond.
+An example showing the [FK6 Star Catalog is available](https://caseyshields.github.io/starmap/index.html). FK6 is a selection of astrometrically excellent stars tied to the [ICRS](https://en.wikipedia.org/wiki/International_Celestial_Reference_System). It is often used to calibrate telescopes at optical wavelengths. It was compiled from the Hipparcos catalog and long term ground based measurements, and is known to be accurate to a milliarcsecond. The JSON dataset was obtained from a Visier archive file using a node [script](https://github.com/caseyshields/starlog).
 
 *TODO add Yale bright star catalog example for a more natural looking sky*
 
 # Starmap API
 
+``` Javascript
+    let starmap = createStarmap( svg, width, height )
+```
+Returns a starmap object whose default method creates or updates a SVG rendering of a starmap
+Argument|Type|Meaning
+-|-|-
+svg|D3 Selector|a selection holding the SVG tag the starmap should be rendered into
+width|Integer|Width of the starmap
+height|Integer|Height of the stapmap
+
+``` Javascript
+    starmap.click( function(star) )
+```
+Sets a callback for handling clicks on the starmap, returns the starmap for chaining methods.
+Argument|Type|Meaning
+-|-|-
+star|Object|a catalog object if one was clicked, otherwise null
+
+``` Javascript
+    starmap.move( function(point) )
+```
+Sets a callback for handling mouse movement over a starmap
+Argument|Type|Meaning
+-|-|-
+point|Array[2]|Holds the screen coordinates of the mouse movement
+
+``` Javascript
+    starmap.magnitude( domain )
+```
+Sets the input range of stars' visual magnitude.
+
+Argument|Type|Meaning
+-|-|-
+domain|Array[2]|an interval holding the minimum and maximum star magnitude, in that order.
+
+```Javascript
+    starmap.catalog( entries )
+```
 Catalogs are loaded as arrays of json objects.
 Any epoch can be used as long as all the entries are consistent.
-Each entry must contain;
 
-Member | Type | Meaning
+Argument|Type|Meaning
 -|-|-
-ra | Floating point | Celestial right ascension in hours, 0.0 - 24.0
-dec | Floating point | Declination in degrees, -90.0 to +90.0
-vm | Floating Point | Visual magnitude
+entries|Array of objects|An array of catalog objects which must have `ra`, `dec`, `Vmag` members
+entries[n].ra | Floating point | Celestial right ascension in hours, 0.0 - 24.0
+entries[n].dec | Floating point | Declination in degrees, -90.0 to +90.0
+entries[n].vm | Floating Point | Visual magnitude
 
-
-
-
+## Future Improvements
+ - add more interactivity call backs
+ - add ability to render more star properties; parallax, proper motion, spectral type, etc.
+ - try using a catalog with more data like Gaia
